@@ -69,7 +69,8 @@ body {
 }
 
 .chart-panel__tabs {
-  display: inline-flex;
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
@@ -84,9 +85,68 @@ body {
 }
 
 .tab--active {
-  background: #38bdf8;
+  background: #599561;
   color: #0f172a;
   border-color: transparent;
+}
+
+.download {
+  margin-left: auto;
+  background: #599561;
+  border: 1px solid transparent;
+  color: #0f172a;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.download:hover {
+  background: #4f8657;
+}
+
+input[type="range"] {
+  accent-color: #599561;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: transparent;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  background: #1a1a1a;
+  border-radius: 999px;
+  border: 1px solid #2a2a2a;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #599561;
+  border: 2px solid #0f172a;
+  margin-top: -5px;
+}
+
+input[type="range"]::-moz-range-track {
+  height: 8px;
+  background: #1a1a1a;
+  border-radius: 999px;
+  border: 1px solid #2a2a2a;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #599561;
+  border: 2px solid #0f172a;
 }
 
 .chart-panel__chart {

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Area,
   CartesianGrid,
@@ -35,6 +35,49 @@ const formatMonthLabel = (monthIndex) => {
   const month = (absoluteMonth % 12) + 1;
   const yy = String(year).slice(-2);
   return `${yy}-${month}`;
+};
+
+const downloadBlob = (blob, filename) => {
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+};
+
+const svgToPng = async (svgElement, filename, background = "#111111") => {
+  const bbox = svgElement.getBoundingClientRect();
+  const width = Math.max(1, Math.floor(bbox.width));
+  const height = Math.max(1, Math.floor(bbox.height));
+  const cloned = svgElement.cloneNode(true);
+  cloned.setAttribute("width", width);
+  cloned.setAttribute("height", height);
+  const svgData = new XMLSerializer().serializeToString(cloned);
+  const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(svgBlob);
+
+  await new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.fillStyle = background;
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (blob) downloadBlob(blob, filename);
+          resolve();
+        });
+      } else {
+        resolve();
+      }
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  });
 };
 
 function NumberControl({
@@ -149,6 +192,7 @@ export default function App() {
   const [bootstrapFunding, setBootstrapFunding] = useState(0);
   const [premiumCostPct, setPremiumCostPct] = useState(8);
   const [activeTab, setActiveTab] = useState("chart");
+  const chartRef = useRef(null);
 
   const data = useMemo(
     () =>
@@ -191,16 +235,38 @@ export default function App() {
     return months;
   }, [data, timescaleMonths]);
 
+  const handleDownload = async () => {
+    if (activeTab === "chart") {
+      const svg = chartRef.current?.querySelector("svg");
+      if (!svg) return;
+      await svgToPng(svg, "coverage-chart.png");
+      return;
+    }
+
+    const headers = [
+      "Month",
+      "Premium Purchases",
+      "Cumulative Premium Purchases",
+      "Current Cumulative Coverage",
+    ];
+    const rows = monthlyData.map((month) => [
+      month.label,
+      month.purchases,
+      month.cumulativePremiums,
+      month.coverage,
+    ]);
+    const csv = [headers, ...rows]
+      .map((row) => row.join(","))
+      .join("\n");
+    downloadBlob(new Blob([csv], { type: "text/csv;charset=utf-8" }), "coverage-table.csv");
+  };
+
   return (
     <div className="app">
       <div className="chart-panel">
         <div className="chart-panel__header">
           <div>
             <h1>Beefy DAO - Protocol Coverage Fund Model</h1>
-          </div>
-          <div className="chart-panel__meta">
-            <span>Timescale: {timescaleMonths} months</span>
-            <span>Premium Cost: {premiumCostPct}%</span>
           </div>
         </div>
         <div className="chart-panel__tabs">
@@ -218,8 +284,11 @@ export default function App() {
           >
             Table
           </button>
+          <button type="button" className="download" onClick={handleDownload}>
+            Download
+          </button>
         </div>
-        <div className="chart-panel__chart">
+        <div className="chart-panel__chart" ref={chartRef}>
           {activeTab === "chart" ? (
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
@@ -238,7 +307,7 @@ export default function App() {
                 />
                 <YAxis
                   yAxisId="left"
-                  stroke="#60a5fa"
+                  stroke="#599561"
                   tickFormatter={(value) => formatCompact(value)}
                 />
                 <YAxis
@@ -265,14 +334,14 @@ export default function App() {
                   yAxisId="left"
                   dataKey="purchase"
                   name="Premium Purchases"
-                  fill="#38bdf8"
+                  fill="#599561"
                 />
                 <Line
                   yAxisId="left"
                   type="monotone"
                   dataKey="cumulativePremiums"
                   name="Cumulative Premium Purchases"
-                  stroke="#60a5fa"
+                  stroke="#599561"
                   strokeWidth={2}
                   dot={false}
                 />
