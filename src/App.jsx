@@ -90,6 +90,7 @@ function NumberControl({
   suffix,
   inputFormatter,
   inputParser,
+  inputMode = "numeric",
 }) {
   const displayValue =
     inputFormatter && Number.isFinite(value) ? inputFormatter(value) : value;
@@ -110,7 +111,7 @@ function NumberControl({
           <input
             className="control__number"
             type="text"
-            inputMode="numeric"
+            inputMode={inputMode}
             value={displayValue}
             onChange={(event) => {
               const raw = event.target.value;
@@ -450,6 +451,12 @@ export default function App() {
             max={30}
             step={0.5}
             suffix="%"
+            inputMode="decimal"
+            inputFormatter={(value) => Number(value).toFixed(2)}
+            inputParser={(raw) => {
+              const parsed = Number(raw.replace(/[^0-9.]/g, ""));
+              return Number.isNaN(parsed) ? premiumCostPct : parsed;
+            }}
           />
         </div>
       </section>
