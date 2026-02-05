@@ -236,6 +236,52 @@ export default function App() {
     return months;
   }, [data, timescaleMonths]);
 
+  const yMax = useMemo(() => {
+    const max = data.reduce((acc, point) => {
+      const localMax = Math.max(
+        point.purchase || 0,
+        point.cumulativePremiums || 0,
+        point.coverage || 0
+      );
+      return Math.max(acc, localMax);
+    }, 0);
+    return Math.max(1, max);
+  }, [data]);
+
+  const renderPurchaseDot = (props) => {
+    const { cx, cy, payload } = props;
+    if (!payload || payload.purchase <= 0) return null;
+    return <circle cx={cx} cy={cy} r={4} fill="#2b6b3a" />;
+  };
+
+  const readmeText = `This is a simple one-page React app that models insurance premium purchases and the resulting cumulative coverage over time. It lets you tune purchase cadence, policy duration, and premium cost to see how coverage evolves on a monthly timeline.
+
+Built by jackgale.eth (Staworth Limited).
+
+Model Overview
+1. Premium Purchases (scatter)
+   The premium paid on each purchase date.
+2. Cumulative Purchases (line)
+   Running total of all premium purchases to date.
+3. Cumulative Coverage (area)
+   The sum of non-expired premium purchases divided by the premium cost percentage.
+
+Coverage calculation example:
+- $800k of valid (non-expired) premium purchases
+- 8% premium cost
+- Coverage = $800k / 0.08 = $10M
+
+Configuration Parameters
+- Timescale (months): Total model duration (12–60 months).
+- Premium Value: Amount for each recurring premium purchase ($1k–$500k).
+- Purchase Cadence (days): Days between purchases (1–365).
+- Policy Duration (days): How long each purchase remains valid (1–365).
+- Bootstrap Funding: One-time day-one purchase amount (default 0).
+- Premium Cost (%): Percentage applied to calculate coverage (1–30%).
+
+License
+MIT`;
+
   const handleDownload = async () => {
     if (activeTab === "chart") {
       const svg = chartRef.current?.querySelector("svg");
@@ -244,11 +290,15 @@ export default function App() {
       return;
     }
 
+    if (activeTab === "readme") {
+      return;
+    }
+
     const headers = [
       "Month",
       "Premium Purchases",
-      "Cumulative Premium Purchases",
-      "Current Cumulative Coverage",
+      "Cumulative Purchases",
+      "Cumulative Coverage",
     ];
     const rows = monthlyData.map((month) => [
       month.label,
@@ -285,6 +335,13 @@ export default function App() {
           >
             Table
           </button>
+          <button
+            type="button"
+            className={`tab ${activeTab === "readme" ? "tab--active" : ""}`}
+            onClick={() => setActiveTab("readme")}
+          >
+            README
+          </button>
           <button type="button" className="download" onClick={handleDownload}>
             Download
           </button>
@@ -296,7 +353,7 @@ export default function App() {
                 data={data}
                 margin={{ top: 10, right: 40, left: 10 }}
               >
-                <CartesianGrid strokeDasharray="4 4" stroke="#1f2937" />
+                <CartesianGrid strokeDasharray="4 4" stroke="#2a2a2a" />
                 <XAxis
                   dataKey="day"
                   tickFormatter={(value) =>
@@ -307,15 +364,10 @@ export default function App() {
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  yAxisId="left"
-                  stroke="#599561"
+                  yAxisId="main"
+                  stroke="#94a3b8"
                   tickFormatter={(value) => formatCompact(value)}
-                />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  stroke="#f97316"
-                  tickFormatter={(value) => formatCompact(value)}
+                  domain={[0, yMax * 1.1]}
                 />
                 <Tooltip
                   formatter={(value, name) => [formatCurrency(value), name]}
@@ -331,41 +383,55 @@ export default function App() {
                   }}
                 />
                 <Legend />
-                <Scatter
-                  yAxisId="left"
-                  dataKey="purchase"
-                  name="Premium Purchases"
-                  fill="#599561"
-                />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="cumulativePremiums"
-                  name="Cumulative Premium Purchases"
-                  stroke="#599561"
-                  strokeWidth={2}
-                  dot={false}
-                />
                 <Area
-                  yAxisId="right"
+                  yAxisId="main"
                   type="monotone"
                   dataKey="coverage"
-                  name="Current Cumulative Coverage"
+                  name="Cumulative Coverage"
                   fill="#fb923c"
                   stroke="#f97316"
-                  fillOpacity={0.25}
+                  strokeWidth={2}
+                  fillOpacity={0.2}
+                />
+                <Area
+                  yAxisId="main"
+                  type="monotone"
+                  dataKey="cumulativePremiums"
+                  name="Cumulative Purchases (Area)"
+                  fill="#2b6b3a"
+                  stroke="#2b6b3a"
+                  strokeWidth={0}
+                  fillOpacity={0.15}
+                  legendType="none"
+                />
+                <Line
+                  yAxisId="main"
+                  type="monotone"
+                  dataKey="cumulativePremiums"
+                  name="Cumulative Purchases"
+                  stroke="#2b6b3a"
+                  strokeWidth={3}
+                  dot={false}
+                />
+                <Scatter
+                  yAxisId="main"
+                  data={data}
+                  dataKey="purchase"
+                  name="Premium Purchases"
+                  fill="#2b6b3a"
+                  shape={renderPurchaseDot}
                 />
               </ComposedChart>
             </ResponsiveContainer>
-          ) : (
+          ) : activeTab === "table" ? (
             <div className="chart-table">
               <table>
                 <thead>
                   <tr>
                     <th>Month</th>
                     <th>Premium Purchases</th>
-                    <th>Cumulative Premium Purchases</th>
-                    <th>Current Cumulative Coverage</th>
+                    <th>Cumulative Purchases</th>
+                    <th>Cumulative Coverage</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -379,6 +445,10 @@ export default function App() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          ) : (
+            <div className="chart-readme">
+              <pre>{readmeText}</pre>
             </div>
           )}
         </div>

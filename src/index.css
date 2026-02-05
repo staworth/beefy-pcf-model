@@ -52,6 +52,7 @@ body {
   font-size: clamp(1.4rem, 2vw, 2.1rem);
 }
 
+
 .chart-panel__eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -180,6 +181,23 @@ input[type="range"]::-moz-range-thumb {
   top: 0;
   background: #111111;
   z-index: 1;
+}
+
+.chart-readme {
+  height: 100%;
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid #1f1f1f;
+  padding: 16px;
+  background: #111111;
+}
+
+.chart-readme pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+  font-size: 0.9rem;
+  color: #cbd5f5;
 }
 
 .config {
