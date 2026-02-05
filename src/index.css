@@ -1,0 +1,272 @@
+:root {
+  color-scheme: light;
+  font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+  background: #000000;
+  color: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #000000;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 16px;
+}
+
+.chart-panel {
+  flex: 0 0 65%;
+  min-height: 0;
+  background: #111111;
+  border: 1px solid #1f1f1f;
+  border-radius: 20px;
+  padding: 18px;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.chart-panel__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.chart-panel__header h1 {
+  margin: 6px 0 0;
+  font-size: clamp(1.4rem, 2vw, 2.1rem);
+}
+
+.chart-panel__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.chart-panel__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #cbd5f5;
+}
+
+.chart-panel__tabs {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.tab {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  color: #cbd5f5;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.tab--active {
+  background: #38bdf8;
+  color: #0f172a;
+  border-color: transparent;
+}
+
+.chart-panel__chart {
+  min-height: 220px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.chart-table {
+  height: 100%;
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid #1f1f1f;
+}
+
+.chart-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.chart-table th,
+.chart-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #1f1f1f;
+}
+
+.chart-table th {
+  position: sticky;
+  top: 0;
+  background: #111111;
+  z-index: 1;
+}
+
+.config {
+  flex: 0 0 35%;
+  min-height: 0;
+  background: #111111;
+  border-radius: 20px;
+  padding: 18px 22px 22px;
+  border: 1px solid #1f1f1f;
+  overflow: auto;
+}
+
+.config__header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.config__header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.config__header p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.config__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.control {
+  background: #222222;
+  border-radius: 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  display: grid;
+  gap: 10px;
+}
+
+.control__label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.control__inputs {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  align-items: center;
+  gap: 12px;
+}
+
+.control__range {
+  flex: 1;
+}
+
+.control__field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #1a1a1a;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.control__number {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.control__number:focus {
+  outline: none;
+}
+
+.control__suffix {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.control__hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #cbd5f5;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.toggle--on {
+  background: #38bdf8;
+}
+
+.toggle--off {
+  background: #e2e8f0;
+}
+
+.toggle__dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.toggle__text {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+  .app {
+    padding: 18px;
+  }
+
+  .chart-panel__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .config__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .config__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .control__inputs {
+    grid-template-columns: 1fr;
+  }
+}
